@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#F8F9FA] text-[#171717] min-h-screen antialiased;
+  }
+}
+
+/* Subtle clean scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Citation markers styling */
+.citation-btn {
+  @apply inline-flex items-center justify-center px-1.5 py-0.5 mx-0.5 rounded text-xs font-mono font-semibold text-navy-800 bg-navy-50 hover:bg-navy-800 hover:text-white border border-navy-800/20 transition-all cursor-pointer select-none;
+}
+
+.citation-btn.active {
+  @apply bg-navy-800 text-white border-navy-900 ring-2 ring-navy-800/30;
+}
