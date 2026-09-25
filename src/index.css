@@ -4,34 +4,79 @@
 
 @layer base {
   body {
-    @apply bg-[#F8F9FA] text-[#171717] min-h-screen antialiased;
+    @apply bg-[#0A0F1D] text-[#F8FAFC] min-h-screen antialiased;
   }
 }
 
-/* Subtle clean scrollbar */
+/* Custom Striped Lines Pattern (Light & Dark) */
+.bg-striped-lines-light {
+  background-color: #FAFAFC;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(35, 123, 246, 0.06),
+    rgba(35, 123, 246, 0.06) 15px,
+    transparent 15px,
+    transparent 30px
+  );
+}
+
+.bg-striped-lines-light-dense {
+  background-color: #FFFFFF;
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(35, 123, 246, 0.05),
+    rgba(35, 123, 246, 0.05) 8px,
+    transparent 8px,
+    transparent 20px
+  );
+}
+
+.bg-striped-lines {
+  background-color: #0A0F1D;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(35, 123, 246, 0.06),
+    rgba(35, 123, 246, 0.06) 15px,
+    transparent 15px,
+    transparent 30px
+  );
+}
+
+.bg-striped-lines-dense {
+  background-color: #080D1A;
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(127, 180, 250, 0.05),
+    rgba(127, 180, 250, 0.05) 8px,
+    transparent 8px,
+    transparent 20px
+  );
+}
+
+/* Subtle clean dark scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+  background: #070A0F;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #1E293B;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #334155;
 }
 
 /* Citation markers styling */
 .citation-btn {
-  @apply inline-flex items-center justify-center px-1.5 py-0.5 mx-0.5 rounded text-xs font-mono font-semibold text-navy-800 bg-navy-50 hover:bg-navy-800 hover:text-white border border-navy-800/20 transition-all cursor-pointer select-none;
+  @apply inline-flex items-center justify-center px-1.5 py-0.5 mx-0.5 rounded text-xs font-mono font-semibold text-blue-400 bg-blue-950/80 hover:bg-blue-600 hover:text-white border border-blue-800/50 transition-all cursor-pointer select-none;
 }
 
 .citation-btn.active {
-  @apply bg-navy-800 text-white border-navy-900 ring-2 ring-navy-800/30;
+  @apply bg-blue-600 text-white border-blue-400 ring-2 ring-blue-500/40;
 }

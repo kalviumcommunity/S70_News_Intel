@@ -12,9 +12,13 @@ import {
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { GlobalSearchModal } from './components/layout/GlobalSearchModal';
+import { SettingsModal } from './components/layout/SettingsModal';
+import { ToastContainer, ToastMessage } from './components/layout/Toast';
 
+import { LandingPage } from './components/landing/LandingPage';
 import { ResearchLanding } from './components/research/ResearchLanding';
 import { ResearchResults } from './components/research/ResearchResults';
+import { RagStreamModal } from './components/research/RagStreamModal';
 import { DocumentList } from './components/documents/DocumentList';
 import { UploadModal } from './components/documents/UploadModal';
 import { DocumentViewer } from './components/documents/DocumentViewer';
@@ -24,13 +28,33 @@ import { ActivityView } from './components/activity/ActivityView';
 import { AdminView } from './components/admin/AdminView';
 
 export const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = React.useState<NavigationPage>('research');
+  const [currentPage, setCurrentPage] = React.useState<NavigationPage>('landing');
   const [documents, setDocuments] = React.useState<DocumentItem[]>(MOCK_DOCUMENTS);
   const [selectedDocId, setSelectedDocId] = React.useState<string>('doc-1');
   const [currentAnswer, setCurrentAnswer] = React.useState<ResearchAnswer>(DEFAULT_RESEARCH_ANSWER);
 
   const [isUploadOpen, setIsUploadOpen] = React.useState(false);
   const [isGlobalSearchOpen, setIsGlobalSearchOpen] = React.useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+
+  // Toast Notifications
+  const [toasts, setToasts] = React.useState<ToastMessage[]>([]);
+
+  const addToast = (type: 'success' | 'info' | 'error', title: string, description?: string) => {
+    const id = `toast-${Date.now()}`;
+    setToasts((prev) => [...prev, { id, type, title, description }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4000);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  // Live RAG Stream Simulation state
+  const [isStreaming, setIsStreaming] = React.useState(false);
+  const [pendingQuestion, setPendingQuestion] = React.useState<string>('');
 
   const [savedSessions, setSavedSessions] = React.useState<SavedSession[]>(MOCK_SAVED_SESSIONS);
   const [activities, setActivities] = React.useState<ActivityItem[]>(MOCK_ACTIVITY);
@@ -48,19 +72,26 @@ export const App: React.FC = () => {
   }, []);
 
   const handleAskQuestion = (question: string) => {
+    setPendingQuestion(question);
+    setIsStreaming(true);
+  };
+
+  const handleStreamComplete = (answer: ResearchAnswer) => {
     const newAnswer: ResearchAnswer = {
-      ...DEFAULT_RESEARCH_ANSWER,
-      question: question,
+      ...answer,
+      question: pendingQuestion || answer.question,
     };
     setCurrentAnswer(newAnswer);
+    setIsStreaming(false);
     setCurrentPage('results');
+    addToast('success', 'RAG Synthesis Complete', `Verified 3 source citations for "${pendingQuestion || answer.question}"`);
 
     // Add to activity stream
     const newActivity: ActivityItem = {
       id: `act-${Date.now()}`,
       user: 'Ashik',
       action: 'executed research query',
-      target: `"${question}"`,
+      target: `"${pendingQuestion || answer.question}"`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     setActivities([newActivity, ...activities]);
@@ -72,7 +103,11 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteDocument = (docId: string) => {
+    const docToDelete = documents.find(d => d.id === docId);
     setDocuments(documents.filter((d) => d.id !== docId));
+    if (docToDelete) {
+      addToast('info', 'Document Removed', `${docToDelete.name} was removed from the vector index.`);
+    }
   };
 
   const handleUploadSuccess = (filename: string, fileType: any) => {
@@ -90,6 +125,7 @@ export const App: React.FC = () => {
       content: `DOCUMENT TEXT: ${filename}\n\nIngested content processed by NewsIntel Enterprise RAG vector index. All passages are indexed and available for semantic verification.`
     };
     setDocuments([newDoc, ...documents]);
+    addToast('success', 'Document Ingested & Indexed', `${filename} added to vector partition.`);
 
     // Add to activity stream
     const newAct: ActivityItem = {
@@ -103,6 +139,15 @@ export const App: React.FC = () => {
   };
 
   const activeDoc = documents.find((d) => d.id === selectedDocId) || documents[0];
+
+  if (currentPage === 'landing') {
+    return (
+      <LandingPage
+        onLaunchApp={() => setCurrentPage('research')}
+        onAskQuestion={handleAskQuestion}
+      />
+    );
+  }
 
   return (
     <div className="flex h-screen bg-canvas text-ink-900 overflow-hidden font-sans select-none">
@@ -119,6 +164,8 @@ export const App: React.FC = () => {
         <Header
           onOpenGlobalSearch={() => setIsGlobalSearchOpen(true)}
           onOpenUpload={() => setIsUploadOpen(true)}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          onNavigateToLanding={() => setCurrentPage('landing')}
         />
 
         {/* Dynamic Page Views */}
@@ -159,6 +206,7 @@ export const App: React.FC = () => {
               onSelectCollection={(title) => {
                 setCurrentPage('documents');
               }}
+              onAskCollectionQuery={(colTitle, q) => handleAskQuestion(`[Collection: ${colTitle}] ${q}`)}
             />
           )}
 
@@ -179,7 +227,7 @@ export const App: React.FC = () => {
         </main>
       </div>
 
-      {/* Modals */}
+      {/* Modals & Notifications */}
       <UploadModal
         isOpen={isUploadOpen}
         onClose={() => setIsUploadOpen(false)}
@@ -193,7 +241,27 @@ export const App: React.FC = () => {
         onSelectDocument={handleOpenDocument}
         onExecuteSearch={handleAskQuestion}
       />
+
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        onSave={(msg) => addToast('success', 'Preferences Saved', msg)}
+      />
+
+      <RagStreamModal
+        isOpen={isStreaming}
+        question={pendingQuestion}
+        onComplete={handleStreamComplete}
+        mockAnswer={{
+          ...DEFAULT_RESEARCH_ANSWER,
+          question: pendingQuestion || DEFAULT_RESEARCH_ANSWER.question
+        }}
+      />
+
+      {/* Global Toast Container */}
+      <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </div>
   );
 };
+
 export default App;

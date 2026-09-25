@@ -31,32 +31,32 @@ export const ResearchLanding: React.FC<ResearchLandingProps> = ({ onAskQuestion 
       <div className="w-full space-y-8">
         {/* Workspace Label & Main Heading */}
         <div className="space-y-2">
-          <div className="text-xs font-semibold text-ink-500 uppercase tracking-wider">
+          <div className="text-xs font-semibold text-blue-400 uppercase tracking-wider font-mono">
             Research Workspace
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl">
+          <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
             What are you investigating?
           </h1>
-          <p className="text-base text-ink-500">
+          <p className="text-base text-slate-400">
             Search your archive and get answers backed by evidence.
           </p>
         </div>
 
         {/* Main Large Research Input Box */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="relative rounded-md border border-border bg-panel shadow-card p-2 flex items-center gap-3 focus-within:border-navy-800 focus-within:ring-1 focus-within:ring-navy-800 transition-all">
-            <Search className="w-5 h-5 text-ink-400 ml-2 shrink-0" />
+          <div className="relative rounded-lg border border-slate-800 bg-slate-900 shadow-xl p-2 flex items-center gap-3 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+            <Search className="w-5 h-5 text-slate-400 ml-2 shrink-0" />
             <input
               type="text"
               value={questionText}
               onChange={(e) => setQuestionText(e.target.value)}
               placeholder="Ask a question about your documents..."
-              className="flex-1 py-2 text-base text-ink-900 placeholder:text-ink-400 bg-transparent focus:outline-none"
+              className="flex-1 py-2 text-base text-white placeholder:text-slate-500 bg-transparent focus:outline-none"
             />
             <button
               type="submit"
               disabled={!questionText.trim()}
-              className="px-4 py-2 bg-navy-800 hover:bg-navy-700 disabled:opacity-50 text-white rounded text-sm font-semibold flex items-center gap-2 transition-colors shrink-0"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded text-sm font-semibold flex items-center gap-2 transition-colors shrink-0"
             >
               <span>Ask</span>
               <ArrowRight className="w-4 h-4" />
@@ -66,8 +66,8 @@ export const ResearchLanding: React.FC<ResearchLandingProps> = ({ onAskQuestion 
 
         {/* Clickable Suggestions */}
         <div className="space-y-3 pt-2">
-          <div className="text-xs font-semibold text-ink-500 uppercase tracking-wider flex items-center gap-1.5">
-            <HelpCircle className="w-3.5 h-3.5 text-navy-800" />
+          <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 font-mono">
+            <HelpCircle className="w-3.5 h-3.5 text-blue-400" />
             Try asking
           </div>
 
@@ -76,10 +76,10 @@ export const ResearchLanding: React.FC<ResearchLandingProps> = ({ onAskQuestion 
               <button
                 key={idx}
                 onClick={() => handleSelectSuggestion(item)}
-                className="text-left px-3.5 py-2.5 rounded border border-border bg-panel hover:bg-canvas hover:border-gray-300 transition-colors text-sm text-ink-700 flex items-center justify-between group"
+                className="text-left px-3.5 py-2.5 rounded border border-slate-800 bg-slate-900 hover:bg-slate-800 hover:border-slate-700 transition-colors text-sm text-slate-300 flex items-center justify-between group"
               >
                 <span>"{item}"</span>
-                <ArrowRight className="w-3.5 h-3.5 text-ink-400 group-hover:text-navy-800 transition-colors" />
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-400 transition-colors" />
               </button>
             ))}
           </div>

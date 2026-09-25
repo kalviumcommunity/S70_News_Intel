@@ -1,19 +1,35 @@
 import React from 'react';
-import { Search, Upload, Database, Bell } from 'lucide-react';
+import { Search, Upload, Database, Home, Settings } from 'lucide-react';
 
 interface HeaderProps {
   onOpenGlobalSearch: () => void;
   onOpenUpload: () => void;
+  onOpenSettings?: () => void;
+  onNavigateToLanding?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenGlobalSearch, onOpenUpload }) => {
+export const Header: React.FC<HeaderProps> = ({ 
+  onOpenGlobalSearch, 
+  onOpenUpload, 
+  onOpenSettings,
+  onNavigateToLanding 
+}) => {
   return (
     <header className="h-14 bg-panel border-b border-border px-6 flex items-center justify-between shrink-0">
       {/* Search Input Trigger */}
-      <div className="w-96">
+      <div className="w-96 flex items-center gap-2">
+        {onNavigateToLanding && (
+          <button
+            onClick={onNavigateToLanding}
+            title="Return to Public Landing Page"
+            className="p-1.5 rounded border border-border bg-canvas hover:bg-panel text-ink-700 hover:text-ink-900 transition-colors"
+          >
+            <Home className="w-4 h-4 text-navy-800" />
+          </button>
+        )}
         <button
           onClick={onOpenGlobalSearch}
-          className="w-full flex items-center justify-between px-3 py-1.5 rounded border border-border bg-canvas text-ink-500 hover:border-gray-400 text-xs transition-colors"
+          className="flex-1 flex items-center justify-between px-3 py-1.5 rounded border border-border bg-canvas text-ink-500 hover:border-ink-400 text-xs transition-colors"
         >
           <div className="flex items-center gap-2">
             <Search className="w-3.5 h-3.5 text-ink-400" />
@@ -32,9 +48,19 @@ export const Header: React.FC<HeaderProps> = ({ onOpenGlobalSearch, onOpenUpload
           <span>Archive: <strong className="text-ink-900 font-semibold">1,284 Documents</strong></span>
         </div>
 
+        {onOpenSettings && (
+          <button
+            onClick={onOpenSettings}
+            title="Settings & RAG Engine Preferences"
+            className="p-1.5 rounded border border-border bg-canvas hover:bg-panel text-ink-500 hover:text-ink-900 transition-colors"
+          >
+            <Settings className="w-4 h-4 text-navy-800" />
+          </button>
+        )}
+
         <button
           onClick={onOpenUpload}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-navy-800 hover:bg-navy-700 text-white text-xs font-medium transition-colors shadow-subtle"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-navy-800 hover:bg-navy-700 text-white text-xs font-semibold transition-colors shadow-subtle"
         >
           <Upload className="w-3.5 h-3.5" />
           <span>Upload Documents</span>

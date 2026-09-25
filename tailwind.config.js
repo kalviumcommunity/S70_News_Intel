@@ -7,33 +7,33 @@ export default {
   theme: {
     extend: {
       colors: {
-        canvas: '#F8F9FA',
-        panel: '#FFFFFF',
+        canvas: '#070A0F',
+        panel: '#0D131F',
         ink: {
-          900: '#171717',
-          700: '#374151',
-          500: '#6B7280',
-          400: '#9CA3AF',
+          900: '#F8FAFC',
+          700: '#CBD5E1',
+          500: '#94A3B8',
+          400: '#64748B',
         },
         border: {
-          light: '#F3F4F6',
-          DEFAULT: '#E5E7EB',
-          dark: '#D1D5DB',
+          light: '#1E293B',
+          DEFAULT: '#1E293B',
+          dark: '#334155',
         },
         navy: {
-          900: '#0F172A',
-          800: '#1E3A8A',
+          900: '#0B0F17',
+          800: '#2563EB',
           700: '#1D4ED8',
-          600: '#2563EB',
-          50: '#EFF6FF',
+          600: '#3B82F6',
+          50: '#1E293B',
         },
         subtle: {
-          green: '#16A34A',
-          greenBg: '#F0FDF4',
-          amber: '#D97706',
-          amberBg: '#FFFBEB',
-          red: '#DC2626',
-          redBg: '#FEF2F2',
+          green: '#10B981',
+          greenBg: '#064E3B',
+          amber: '#F59E0B',
+          amberBg: '#78350F',
+          red: '#EF4444',
+          redBg: '#7F1D1D',
         }
       },
       borderRadius: {
@@ -42,12 +42,12 @@ export default {
         lg: '0.5rem',        // 8px
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['Manrope', 'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
         mono: ['JetBrains Mono', 'Menlo', 'Consolas', 'monospace'],
       },
       boxShadow: {
-        subtle: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-        card: '0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.04)',
+        subtle: '0 1px 2px 0 rgba(0, 0, 0, 0.4)',
+        card: '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)',
       }
     },
   },

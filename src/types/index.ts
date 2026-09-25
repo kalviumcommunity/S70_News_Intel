@@ -1,4 +1,5 @@
 export type NavigationPage = 
+  | 'landing'
   | 'research' 
   | 'results' 
   | 'documents' 
