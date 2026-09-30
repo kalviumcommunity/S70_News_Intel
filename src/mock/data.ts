@@ -1,4 +1,31 @@
-import { DocumentItem, Citation, ResearchAnswer, CollectionItem, SavedSession, ActivityItem, AuditRecord } from '../types';
+import { DocumentItem, Citation, ResearchAnswer, CollectionItem, SavedSession, ActivityItem, AuditRecord, User } from '../types';
+
+export const MOCK_USERS: User[] = [
+  {
+    id: 'usr-1',
+    name: 'Ashik',
+    email: 'ashik@newsintel.io',
+    role: 'Senior Journalist',
+    department: 'Investigative Desk'
+  },
+  {
+    id: 'usr-2',
+    name: 'Sarah Jenkins',
+    email: 'sarah.j@newsintel.io',
+    role: 'Lead Editor',
+    department: 'Editorial Board'
+  },
+  {
+    id: 'usr-3',
+    name: 'Marcus Vance',
+    email: 'marcus.v@newsintel.io',
+    role: 'Data Analyst',
+    department: 'Fact Verification Unit'
+  }
+];
+
+export const DEFAULT_USER = MOCK_USERS[0];
+
 
 export const MOCK_DOCUMENTS: DocumentItem[] = [
   {

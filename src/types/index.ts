@@ -9,6 +9,15 @@ export type NavigationPage =
   | 'activity' 
   | 'admin';
 
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  avatarUrl?: string;
+  department?: string;
+}
+
 export type FileType = 'pdf' | 'docx' | 'txt' | 'csv' | 'md';
 
 export interface DocumentItem {

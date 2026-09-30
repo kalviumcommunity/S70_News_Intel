@@ -1,12 +1,13 @@
 import React from 'react';
-import { NavigationPage, DocumentItem, ResearchAnswer, CollectionItem, SavedSession, ActivityItem, AuditRecord } from './types';
+import { NavigationPage, DocumentItem, ResearchAnswer, CollectionItem, SavedSession, ActivityItem, AuditRecord, User } from './types';
 import { 
   MOCK_DOCUMENTS, 
   DEFAULT_RESEARCH_ANSWER, 
   MOCK_COLLECTIONS, 
   MOCK_SAVED_SESSIONS, 
   MOCK_ACTIVITY, 
-  MOCK_AUDIT_LOGS 
+  MOCK_AUDIT_LOGS,
+  DEFAULT_USER 
 } from './mock/data';
 
 import { Sidebar } from './components/layout/Sidebar';
@@ -14,6 +15,7 @@ import { Header } from './components/layout/Header';
 import { GlobalSearchModal } from './components/layout/GlobalSearchModal';
 import { SettingsModal } from './components/layout/SettingsModal';
 import { ToastContainer, ToastMessage } from './components/layout/Toast';
+import { AuthModal } from './components/auth/AuthModal';
 
 import { LandingPage } from './components/landing/LandingPage';
 import { ResearchLanding } from './components/research/ResearchLanding';
@@ -33,6 +35,22 @@ export const App: React.FC = () => {
   const [selectedDocId, setSelectedDocId] = React.useState<string>('doc-1');
   const [currentAnswer, setCurrentAnswer] = React.useState<ResearchAnswer>(DEFAULT_RESEARCH_ANSWER);
 
+  // Auth User State with localStorage persistence
+  const [currentUser, setCurrentUser] = React.useState<User | null>(() => {
+    try {
+      const saved = localStorage.getItem('newsintel_user');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Error loading stored user:', e);
+    }
+    return DEFAULT_USER;
+  });
+
+  const [isAuthOpen, setIsAuthOpen] = React.useState(false);
+  const [authMode, setAuthMode] = React.useState<'login' | 'signup'>('login');
+
   const [isUploadOpen, setIsUploadOpen] = React.useState(false);
   const [isGlobalSearchOpen, setIsGlobalSearchOpen] = React.useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
@@ -50,6 +68,53 @@ export const App: React.FC = () => {
 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  // Auth Action Handlers
+  const handleLogin = (user: User) => {
+    setCurrentUser(user);
+    try {
+      localStorage.setItem('newsintel_user', JSON.stringify(user));
+    } catch (e) {
+      console.error('Error saving user session:', e);
+    }
+    addToast('success', `Welcome back, ${user.name}!`, `Authenticated as ${user.role} (${user.email}).`);
+
+    // Log Activity
+    const loginAct: ActivityItem = {
+      id: `act-${Date.now()}`,
+      user: user.name,
+      action: 'authenticated session',
+      target: 'Enterprise RAG Workspace',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setActivities((prev) => [loginAct, ...prev]);
+  };
+
+  const handleSignOut = () => {
+    const userName = currentUser?.name || 'User';
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem('newsintel_user');
+    } catch (e) {
+      console.error('Error removing user session:', e);
+    }
+    addToast('info', 'Signed Out Successfully', `${userName} has been logged out of NewsIntel.`);
+
+    // Log Activity
+    const logoutAct: ActivityItem = {
+      id: `act-${Date.now()}`,
+      user: userName,
+      action: 'signed out',
+      target: 'Enterprise Workspace',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setActivities((prev) => [logoutAct, ...prev]);
+  };
+
+  const handleOpenAuthModal = (mode: 'login' | 'signup' = 'login') => {
+    setAuthMode(mode);
+    setIsAuthOpen(true);
   };
 
   // Live RAG Stream Simulation state
@@ -89,12 +154,12 @@ export const App: React.FC = () => {
     // Add to activity stream
     const newActivity: ActivityItem = {
       id: `act-${Date.now()}`,
-      user: 'Ashik',
+      user: currentUser?.name || 'Guest User',
       action: 'executed research query',
       target: `"${pendingQuestion || answer.question}"`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
-    setActivities([newActivity, ...activities]);
+    setActivities((prev) => [newActivity, ...prev]);
   };
 
   const handleOpenDocument = (docId: string) => {
@@ -121,7 +186,7 @@ export const App: React.FC = () => {
       status: 'Indexed',
       topics: ['Transport', 'Infrastructure'],
       entities: ['Ministry of Transport'],
-      uploadedBy: 'Ashik',
+      uploadedBy: currentUser?.name || 'Guest User',
       content: `DOCUMENT TEXT: ${filename}\n\nIngested content processed by NewsIntel Enterprise RAG vector index. All passages are indexed and available for semantic verification.`
     };
     setDocuments([newDoc, ...documents]);
@@ -130,22 +195,46 @@ export const App: React.FC = () => {
     // Add to activity stream
     const newAct: ActivityItem = {
       id: `act-${Date.now()}`,
-      user: 'Ashik',
+      user: currentUser?.name || 'Guest User',
       action: 'uploaded',
       target: filename,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
-    setActivities([newAct, ...activities]);
+    setActivities((prev) => [newAct, ...prev]);
+  };
+
+  const handleSaveSession = (question: string, sourceCount: number) => {
+    const newSession: SavedSession = {
+      id: `sav-${Date.now()}`,
+      question,
+      sourceCount,
+      date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+    };
+    setSavedSessions((prev) => [newSession, ...prev]);
+    addToast('success', 'Session Bookmarked', `Saved "${question}" to your saved research archive.`);
   };
 
   const activeDoc = documents.find((d) => d.id === selectedDocId) || documents[0];
 
+
   if (currentPage === 'landing') {
     return (
-      <LandingPage
-        onLaunchApp={() => setCurrentPage('research')}
-        onAskQuestion={handleAskQuestion}
-      />
+      <>
+        <LandingPage
+          onLaunchApp={() => setCurrentPage('research')}
+          onAskQuestion={handleAskQuestion}
+          currentUser={currentUser}
+          onOpenLogin={() => handleOpenAuthModal('login')}
+          onSignOut={handleSignOut}
+        />
+        <AuthModal
+          isOpen={isAuthOpen}
+          onClose={() => setIsAuthOpen(false)}
+          onLogin={handleLogin}
+          initialMode={authMode}
+        />
+        <ToastContainer toasts={toasts} onDismiss={removeToast} />
+      </>
     );
   }
 
@@ -156,6 +245,9 @@ export const App: React.FC = () => {
         currentPage={currentPage}
         onNavigate={setCurrentPage}
         documentCount={documents.length}
+        currentUser={currentUser}
+        onSignOut={handleSignOut}
+        onOpenLogin={() => handleOpenAuthModal('login')}
       />
 
       {/* Main Container */}
@@ -166,6 +258,9 @@ export const App: React.FC = () => {
           onOpenUpload={() => setIsUploadOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
           onNavigateToLanding={() => setCurrentPage('landing')}
+          currentUser={currentUser}
+          onOpenAuthModal={() => handleOpenAuthModal('login')}
+          onSignOut={handleSignOut}
         />
 
         {/* Dynamic Page Views */}
@@ -180,8 +275,10 @@ export const App: React.FC = () => {
               onAskNewQuestion={handleAskQuestion}
               onOpenDocument={handleOpenDocument}
               onBackToSearch={() => setCurrentPage('research')}
+              onSaveSession={handleSaveSession}
             />
           )}
+
 
           {currentPage === 'documents' && (
             <DocumentList
@@ -228,6 +325,13 @@ export const App: React.FC = () => {
       </div>
 
       {/* Modals & Notifications */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        onLogin={handleLogin}
+        initialMode={authMode}
+      />
+
       <UploadModal
         isOpen={isUploadOpen}
         onClose={() => setIsUploadOpen(false)}

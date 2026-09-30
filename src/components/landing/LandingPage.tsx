@@ -2,13 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { LandingHeader } from './LandingHeader';
 import { LandingHero } from './LandingHero';
 import { ProblemSection, RAGWorkflowSection, FeaturesSection, UseCasesSection, LandingFooter } from './LandingSections';
+import { User } from '../../types';
 
 interface LandingPageProps {
   onLaunchApp: () => void;
   onAskQuestion: (question: string) => void;
+  currentUser: User | null;
+  onOpenLogin: () => void;
+  onSignOut: () => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ 
+  onLaunchApp, 
+  currentUser,
+  onOpenLogin,
+  onSignOut
+}) => {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -25,7 +34,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp }) => {
         <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-[#11348c]/20 rounded-full blur-[200px]" />
       </div>
 
-      <LandingHeader scrolled={scrolled} onLaunchApp={onLaunchApp} />
+      <LandingHeader 
+        scrolled={scrolled} 
+        onLaunchApp={onLaunchApp}
+        currentUser={currentUser}
+        onOpenLogin={onOpenLogin}
+        onSignOut={onSignOut}
+      />
       <LandingHero onLaunchApp={onLaunchApp} />
       <ProblemSection />
       <RAGWorkflowSection />

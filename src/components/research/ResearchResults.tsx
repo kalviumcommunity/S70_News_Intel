@@ -22,6 +22,7 @@ interface ResearchResultsProps {
   onAskNewQuestion: (question: string) => void;
   onOpenDocument: (docId: string) => void;
   onBackToSearch: () => void;
+  onSaveSession?: (question: string, sourceCount: number) => void;
 }
 
 export const ResearchResults: React.FC<ResearchResultsProps> = ({
@@ -29,12 +30,14 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({
   onAskNewQuestion,
   onOpenDocument,
   onBackToSearch,
+  onSaveSession,
 }) => {
   const [activeCitationId, setActiveCitationId] = React.useState<number>(1);
   const [isExportOpen, setIsExportOpen] = React.useState(false);
   const [sourceSearch, setSourceSearch] = React.useState('');
   const [selectedTypeFilter, setSelectedTypeFilter] = React.useState<FileType | 'all'>('all');
   const [copiedQuick, setCopiedQuick] = React.useState(false);
+  const [isBookmarked, setIsBookmarked] = React.useState(false);
 
   const activeCitation = answerData.citations[activeCitationId] || null;
 
@@ -52,6 +55,13 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({
     navigator.clipboard.writeText(text);
     setCopiedQuick(true);
     setTimeout(() => setCopiedQuick(false), 2000);
+  };
+
+  const handleBookmarkSession = () => {
+    if (onSaveSession) {
+      onSaveSession(answerData.question, answerData.sources.length);
+      setIsBookmarked(true);
+    }
   };
 
   const renderParagraphWithCitations = (text: string) => {
@@ -100,6 +110,20 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({
             {/* Export & Action Controls */}
             <div className="flex items-center gap-2">
               <button
+                onClick={handleBookmarkSession}
+                disabled={isBookmarked}
+                className={`px-2.5 py-1.5 border text-xs font-semibold rounded flex items-center gap-1.5 transition-colors ${
+                  isBookmarked 
+                    ? 'bg-subtle-greenBg text-subtle-green border-subtle-green/40' 
+                    : 'border-border hover:bg-panel text-ink-700 hover:text-ink-900'
+                }`}
+                title="Bookmark research session"
+              >
+                <Check className={`w-3.5 h-3.5 ${isBookmarked ? 'block' : 'hidden'}`} />
+                <span>{isBookmarked ? 'Bookmarked' : 'Save Session'}</span>
+              </button>
+
+              <button
                 onClick={handleQuickCopy}
                 className="px-2.5 py-1.5 border border-border hover:bg-panel text-ink-700 hover:text-ink-900 text-xs font-semibold rounded flex items-center gap-1.5 transition-colors"
                 title="Quick copy briefing text"
@@ -117,6 +141,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({
               </button>
             </div>
           </div>
+
 
           <div className="space-y-1.5 bg-panel p-5 rounded border border-border">
             <div className="flex items-center justify-between">
